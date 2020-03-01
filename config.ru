@@ -1,7 +1,11 @@
+require './scraping_news'
+
 class HelloApp
 
   def call(env)
-    [200, {"Content-Type" => "text/plain"}, ["Hello Rack, #{env['REMOTE_USER']}!"]]
+    sn = ScrapingNews.new
+    titles = sn.scraping.to_json
+    [200, {"Content-Type" => "application/json"}, [titles]]
   end
 
 end
@@ -11,7 +15,7 @@ class MyAuth < Rack::Auth::Basic
 
   def call(env)
     request = Rack::Request.new(env)
-    if request.path == '/auth'
+    if request.path == "/auth"
       # Basic認証を回避
       @app.call(env)
     else
@@ -20,6 +24,7 @@ class MyAuth < Rack::Auth::Basic
   end
 
 end
+
 
 use MyAuth do |username, password|
   [username, password] == %w(user password)
